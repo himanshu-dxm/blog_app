@@ -1,4 +1,5 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,9 +28,8 @@ class _HomeScreenState extends State<HomeScreen> {
   initialSetups() async {
     await Firebase.initializeApp();
     _crudMethods.getData().then((value) {
-      blogSnapshot = value;
       setState(() {
-        // blogSnapshot = value;
+        blogSnapshot = value;
       });
     });
   }
@@ -40,14 +40,26 @@ class _HomeScreenState extends State<HomeScreen> {
       child: (blogSnapshot!=null)?
       Column(
         children: [
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: blogSnapshot.docs.length,
-            itemBuilder: (context,index) {
-              return BlogTile(
-                  authorName: blogSnapshot.docs[index].get("authorName"),
-                  title: blogSnapshot.docs[index].get("title"),
-                  imageURL: blogSnapshot.docs[index].get("imageURL")
+          StreamBuilder(
+            stream: blogSnapshot,
+            builder: (context,AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.hasError) {
+                return Container(child: Center(child: Text('Something went wrong')));
+              }
+
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container(child: Center(child: Text("Loading")));
+              }
+              return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: snapshot.data!.docs.length,
+                  itemBuilder: (context,index) {
+                    return BlogTile(
+                        authorName: snapshot.data!.docs[index].get("authorName"),
+                        title: snapshot.data!.docs[index].get("title"),
+                        imageURL: snapshot.data!.docs[index].get("imageURL")
+                    );
+                  }
               );
             }
           ),
@@ -74,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: <Widget>[
             FloatingActionButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
+                  Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => AdminLogin())
                   );
@@ -101,8 +113,9 @@ class BlogTile extends StatelessWidget {
       child: Stack(
         children: [
           ClipRRect(
-            child: Image.network(
-              imageURL,
+            child: CachedNetworkImage(
+              imageUrl: imageURL,
+              errorWidget: (context, url, error) => Icon(Icons.error),
               fit: BoxFit.cover,
               width: MediaQuery.of(context).size.width,
             ),
@@ -119,9 +132,30 @@ class BlogTile extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Container(child: Center(child: Text(title))),
+                Container(
+                  child: Center(
+                    child: Text(
+                      title.toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 22
+                      ),
+                    )
+                  )
+                ),
                 SizedBox(height: 8,),
-                Container(child: Center(child: Text(authorName))),
+                Container(
+                  child: Center(
+                    child: Text(
+                      authorName,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    )
+                  )
+                ),
               ],
             ),
           ),
