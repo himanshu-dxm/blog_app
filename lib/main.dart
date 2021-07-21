@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blog/screens/user/home_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Firebase.initializeApp();
   runApp(MyApp());
 }
 
