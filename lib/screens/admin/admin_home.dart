@@ -125,7 +125,7 @@ class _AdminHomeState extends State<AdminHome> {
       Container(
         child: Center(child:CircularProgressIndicator()),
       ):
-      Container(
+      SingleChildScrollView(
         child: Column(
           children: [
             SizedBox(height: 10,),

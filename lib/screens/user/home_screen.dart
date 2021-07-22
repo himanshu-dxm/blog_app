@@ -36,9 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
   Widget BlogList() {
-    return Container(
-      child: (blogSnapshot!=null)?
-      Column(
+    return (blogSnapshot!=null)?
+    Container(
+      child: Column(
         children: [
           StreamBuilder(
             stream: blogSnapshot,
@@ -65,10 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           SizedBox(height: 8,),
         ],
-      ):
-      Container(
-        child: Center(child: CircularProgressIndicator()),
       ),
+    ):
+    Container(
+      child: Center(child: CircularProgressIndicator()),
     );
   }
 
@@ -78,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       resizeToAvoidBottomInset: false,
       appBar: CommonUtils.myAppBar("Flutter","Blog"),
 
-      body: BlogList(),
+      body: SingleChildScrollView(child: BlogList()),
 
       floatingActionButton: Container(
         padding: EdgeInsets.symmetric(vertical: 20),
